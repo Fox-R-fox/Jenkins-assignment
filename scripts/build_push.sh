@@ -14,8 +14,8 @@ if [[ $? -ne 0 ]]; then
   exit 1
 fi
 
-# Build the Docker image (using the current directory as context)
-docker build -t $IMAGE_NAME .
+# Build the Docker image (using the Dockerfile from the app directory)
+docker build -t $IMAGE_NAME -f app/Dockerfile app
 
 if [[ $? -ne 0 ]]; then
   echo "Docker build failed."
