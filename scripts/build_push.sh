@@ -6,7 +6,7 @@ IMAGE_NAME="test1"
 IMAGE_TAG="latest"
 AWS_REGION="us-east-1"
 
-# Authenticate Docker to AWS ECR
+# Login to AWS ECR (for public repositories)
 aws ecr-public get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $REPO_URL
 
 if [[ $? -ne 0 ]]; then
@@ -14,7 +14,7 @@ if [[ $? -ne 0 ]]; then
   exit 1
 fi
 
-# Build the Docker image (build context is current directory ".")
+# Build the Docker image (using the current directory as context)
 docker build -t $IMAGE_NAME .
 
 if [[ $? -ne 0 ]]; then
