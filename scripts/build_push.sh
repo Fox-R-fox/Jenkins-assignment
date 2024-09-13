@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Set variables
-REPO_URL="public.ecr.aws/k0n5u3j8/test1"
+REPO_URL="public.ecr.aws/k0n5u3j8/test1"  # Ensure this matches your public ECR repo
 IMAGE_NAME="test1"
 IMAGE_TAG="latest"
 AWS_REGION="us-east-1"
@@ -22,8 +22,8 @@ if [[ $? -ne 0 ]]; then
   exit 1
 fi
 
-# Tag the image for ECR
-docker tag $IMAGE_NAME:$IMAGE_TAG $REPO_URL/$IMAGE_NAME:$IMAGE_TAG
+# Tag the image for ECR (no additional directory structure needed)
+docker tag $IMAGE_NAME:$IMAGE_TAG $REPO_URL:$IMAGE_TAG
 
 if [[ $? -ne 0 ]]; then
   echo "Docker tag failed."
@@ -31,7 +31,7 @@ if [[ $? -ne 0 ]]; then
 fi
 
 # Push the image to ECR
-docker push $REPO_URL/$IMAGE_NAME:$IMAGE_TAG
+docker push $REPO_URL:$IMAGE_TAG
 
 if [[ $? -ne 0 ]]; then
   echo "Docker push failed."
