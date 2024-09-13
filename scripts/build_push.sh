@@ -1,20 +1,41 @@
 #!/bin/bash
 
 # Set variables
-REPO_URL="public.ecr.aws/k0n5u3j8/test"
+REPO_URL="public.ecr.aws/k0n5u3j8/test1"
+IMAGE_NAME="test1"
 IMAGE_TAG="latest"
-AWS_REGION="ap-south-1"
-SECRET_ARN="arn:aws:secretsmanager:ap-south-1:339712721384:secret:dockerhublogin-4vcmMW"
+AWS_REGION="us-east-1"
 
-# Get Docker credentials from AWS Secrets Manager
-DOCKER_USERNAME=$(aws secretsmanager get-secret-value --secret-id $SECRET_ARN --query 'SecretString' --output text | jq -r .username)
-DOCKER_PASSWORD=$(aws secretsmanager get-secret-value --secret-id $SECRET_ARN --query 'SecretString' --output text | jq -r .password)
+# Authenticate Docker to AWS ECR
+aws ecr-public get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $REPO_URL
 
-# Login to AWS ECR
-aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $REPO_URL
+if [[ $? -ne 0 ]]; then
+  echo "Failed to login to ECR."
+  exit 1
+fi
 
-# Build the Docker image (specifying the correct path for Dockerfile)
-docker build -t $REPO_URL:$IMAGE_TAG -f app/Dockerfile app
+# Build the Docker image (build context is current directory ".")
+docker build -t $IMAGE_NAME .
+
+if [[ $? -ne 0 ]]; then
+  echo "Docker build failed."
+  exit 1
+fi
+
+# Tag the image for ECR
+docker tag $IMAGE_NAME:$IMAGE_TAG $REPO_URL/$IMAGE_NAME:$IMAGE_TAG
+
+if [[ $? -ne 0 ]]; then
+  echo "Docker tag failed."
+  exit 1
+fi
 
 # Push the image to ECR
-docker push $REPO_URL:$IMAGE_TAG
+docker push $REPO_URL/$IMAGE_NAME:$IMAGE_TAG
+
+if [[ $? -ne 0 ]]; then
+  echo "Docker push failed."
+  exit 1
+fi
+
+echo "Docker image built, tagged, and pushed successfully."
