@@ -13,8 +13,8 @@ DOCKER_PASSWORD=$(aws secretsmanager get-secret-value --secret-id $SECRET_ARN --
 # Login to AWS ECR
 aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $REPO_URL
 
-# Build the Docker image
-docker build -t $REPO_URL:$IMAGE_TAG .
+# Build the Docker image (specifying the correct path for Dockerfile)
+docker build -t $REPO_URL:$IMAGE_TAG -f app/Dockerfile app
 
 # Push the image to ECR
 docker push $REPO_URL:$IMAGE_TAG
