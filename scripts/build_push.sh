@@ -1,6 +1,6 @@
-#!/bin/bash
+git push -u origin main#!/bin/bash
 
-REPO_URL ="public.ecr.aws/k0n5u3j8"
+REPO_URL ="339712721384.dkr.ecr.ap-south-1.amazonaws.com/test"
 IMAGE_TAG="latest"
 AWS_REGION="ap-south-1"
 SECRET_ARN='arn:aws:secretsmanager:ap-south-1:339712721384:secret:dockerhublogin-4vcmMW'
