@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jenkins-assignment-deployment
+  labels:
+    app: jenkins-assignment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: jenkins-assignment
+  template:
+    metadata:
+      labels:
+        app: jenkins-assignment
+    spec:
+      containers:
+      - name: jenkins-assignment-container
+        image: public.ecr.aws/k0n5u3j8/test1:latest  # Replace with your ECR image URI
+        ports:
+        - containerPort: 5000  # Update based on the port your application runs on
