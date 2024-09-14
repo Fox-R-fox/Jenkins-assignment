@@ -2,7 +2,7 @@
 # Script to build Docker image and push to Docker Hub
 
 # Define variables
-IMAGE_NAME="your_dockerhub_username/app_name"
+IMAGE_NAME="foxe03/app"
 TAG="latest"
 
 # Log in to Docker Hub
