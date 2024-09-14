@@ -3,13 +3,10 @@ pipeline {
 
     environment {
         DOCKER_CREDENTIALS_ID = 'docker'  // DockerHub credentials ID
-        IMAGE_NAME = 'foxe03/app'
+        IMAGE_NAME = 'foxe03/app1'
         TAG = 'latest'
-        ARGOCD_SERVER = 'https://your-argocd-server'
-        ARGOCD_APP_NAME = 'app'
-        ARGOCD_CREDENTIALS_ID = 'argocd-credentials'  // Argo CD credentials ID
         MANIFEST_REPO = 'https://github.com/Fox-R-fox/Jenkins-assignment.git' // Repository with Kubernetes manifests
-        MANIFEST_REPO_DIR = 'your-repo'  // Directory name where the repo will be cloned
+        MANIFEST_REPO_DIR = 'Jenkins-assignment'  // Directory name where the repo will be cloned
     }
 
     stages {
@@ -39,31 +36,25 @@ pipeline {
         stage('Update Kubernetes Manifests') {
             steps {
                 script {
-                    // Clone repository containing Kubernetes manifests
-                    sh "git clone ${MANIFEST_REPO}"
-                    dir("${MANIFEST_REPO_DIR}") {
-                        // Update image tag in deployment.yaml
-                        sh "sed -i 's|image: ${IMAGE_NAME}:.*|image: ${IMAGE_NAME}:${TAG}|' deployment.yaml"
-                        // Commit and push changes
-                        sh 'git config user.email "jenkins@example\.com"'
-                        sh 'git config user.name "Jenkins"'
-                        sh 'git add deployment.yaml'
-                        sh 'git commit -m "Update Docker image tag"'
-                        sh 'git push origin main'
-                    }
-                }
-            }
-        }
-
-        stage('Sync with Argo CD') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: "$ARGOCD_CREDENTIALS_ID", usernameVariable: 'ARGOCD_USERNAME', passwordVariable: 'ARGOCD_PASSWORD')]) {
-                    script {
-                        // Login to Argo CD
-                        sh 'argocd login $ARGOCD_SERVER --username $ARGOCD_USERNAME --password $ARGOCD_PASSWORD --insecure'
-
-                        // Sync the Argo CD application
-                        sh 'argocd app sync $ARGOCD_APP_NAME'
+                    withCredentials([usernamePassword(credentialsId: 'github', usernameVariable: 'GITHUB_USERNAME', passwordVariable: 'GITHUB_TOKEN')]) {
+                        sh '''
+                            git clone https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/Fox-R-fox/Jenkins-assignment.git Jenkins-assignment || exit 1
+                            cd Jenkins-assignment
+                            if [ ! -f deployment-service.yml ]; then
+                                echo "File deployment-service.yml not found!"
+                                exit 1
+                            fi
+                            sed -i 's|image: foxe03/app1:.*|image: foxe03/app1:latest|' deployment-service.yml
+                            git config user.email "rohansherkar2207@gmail.com"
+                            git config user.name "Fox-R-fox"
+                            git add deployment-service.yml
+                            if [ -n "$(git status --porcelain)" ]; then
+                                git commit -m "Update Docker image tag"
+                                git push origin main
+                            else
+                                echo "No changes to commit"
+                            fi
+                        '''
                     }
                 }
             }
