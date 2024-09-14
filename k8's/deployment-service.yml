@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jenkins-assignment-deployment
+  labels:
+    app: jenkins-assignment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: jenkins-assignment
+  template:
+    metadata:
+      labels:
+        app: jenkins-assignment
+    spec:
+      containers:
+      - name: jenkins-assignment-container
+        image: docker.io/foxe03/app:latest  # Replace with your Docker Hub image URI
+        ports:
+        - containerPort: 5000  # Update based on the port your application runs on
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jenkins-assignment-service
+spec:
+  selector:
+    app: jenkins-assignment
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5000  # The port your container is listening on
+  type: LoadBalancer
